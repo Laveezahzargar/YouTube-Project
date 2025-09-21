@@ -2,10 +2,12 @@ var express = require("express");
 var app = express();
 var port = 4000;
 
-app.get('/', (req, res) => {
-    res.send({
-        message: "Hii, we have started our backend project"
-    })
-})
+app.use(express.json());
+
+require("./Connection/Conn");
+
+const AuthRoutes = require('./Routes/User');
+
+app.use('/auth', AuthRoutes);
 
 app.listen(port, () => { console.log("Our backend project is runnig on port 4000") })
