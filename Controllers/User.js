@@ -1,7 +1,14 @@
 
 
 const User = require('../Modals/User');
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const cookieOptions = {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'Lax'
+}
 
 exports.signUp = async (req, res) => {
     try {
@@ -28,9 +35,11 @@ exports.signIn = async (req, res) => {
         const { userName, password } = req.body;
         const isExist = await User.findOne({ userName });
         if (isExist) {
-            let verify = await bcrypt.compare(password,isExist.password);
+            let verify = await bcrypt.compare(password, isExist.password);
             if (verify) {
-                res.status(201).json({ message: 'Logged In Sucessfully !', sucess: 'yes', data: isExist });
+                const token = jwt.sign({ userId: isExist._id }, 'Its_My_Secret_Key');
+                res.cookie('token', token,cookieOptions);
+                res.status(201).json({ message: 'Logged In Sucessfully !', sucess: 'yes', data: isExist, Token: token });
             }
             else {
                 res.status(400).json({ error: "Password Incorrect !" });
@@ -45,3 +54,8 @@ exports.signIn = async (req, res) => {
 
     }
 };
+
+
+exports.logout = async (req, res) => {
+    res.clearCookie('token', cookieOptions).json({ message: "Logged Out Sucessfully !" });
+}

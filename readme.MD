@@ -1,0 +1,3 @@
+git rm -r --cached node_modules
+git commit -m "Removed node_modules"
+git push origin master
